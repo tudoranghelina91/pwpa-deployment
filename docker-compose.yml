@@ -16,7 +16,7 @@ services:
   pwpa_message_bus:
     container_name: pwpa_message_bus
     image: rabbitmq:management
-    hostname: 'pwpamessagebus'
+    hostname: 'pwpa_message_bus'
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
@@ -47,12 +47,10 @@ services:
       - pwpa_network
 
   pwpa_call_logging_api:
-    image: ghcr.io/tudoranghelina91/pwpa-call-logging-pwpa_call_logging_api
+    image: ghcr.io/tudoranghelina91/pwpa-call-logging-pwpa_call_logging_api:latest
     container_name: pwpa_call_logging_api
     depends_on:
       - pwpa_call_logging_db
-    build: 
-      context: ./Api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8002
@@ -60,6 +58,10 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Password=Secret@123!
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
       - CallsDatabaseSettings__ConnectionString=${CallsDatabaseSettings__ConnectionString}
+      - RabbitMQ__Host=${RabbitMQ__Host}
+      - RabbitMQ__Port=${RabbitMQ__Port}
+      - RabbitMQ__User=${RabbitMQ__User}
+      - RabbitMQ__Password=${RabbitMQ__Password}
     volumes:
       - ~/.aspnet/https:/https:ro
     networks:
@@ -69,12 +71,10 @@ services:
     ]
 
   pwpa_call_logging_frontend:
-    image: ghcr.io/tudoranghelina91/pwpa-call-logging-pwpa_call_logging_frontend
+    image: ghcr.io/tudoranghelina91/pwpa-call-logging-pwpa_call_logging_frontend:latest
     container_name: pwpa_call_logging_frontend
     depends_on:
       - pwpa_call_logging_api
-    build:
-      context: ./FrontEnd
     ports: [
       8004:8080
     ]
